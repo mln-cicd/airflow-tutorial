@@ -1,4 +1,0 @@
-helm upgrade airflow apache-airflow/airflow --namespace airflow -f ./helm/values.yaml
-
-
-kubectl port-forward svc/airflow-webserver 8282:8080 --namespace airflow
