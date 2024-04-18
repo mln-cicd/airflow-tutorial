@@ -15,8 +15,8 @@ def main():
     )
 
     # Create bucket if it does not exist
-    if not client.bucket_exists("my-bucket"):
-        client.make_bucket("my-bucket")
+    if not client.bucket_exists("bucket1"):
+        client.make_bucket("bucket1")
 
     # Upload a file
     client.put_object(
