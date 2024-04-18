@@ -1,0 +1,16 @@
+helm upgrade airflow apache-airflow/airflow --namespace airflow \
+  -f ~/git_explore/udemy/apache_airflow/apache-kubernetes/helm/k8s_volume_values.yaml
+
+helm upgrade airflow apache-airflow/airflow --namespace airflow \
+  -f /.helm/airflow-1.13.1/airflow/values.yaml \
+  -f /project-root/helm/project_values.yaml
+
+
+
+helm upgrade airflow apache-airflow/airflow --namespace airflow -f /git_explore/udemy/apache_airflow/apache-kubernetes/helm/k8s-volume-values.yaml
+
+helm upgrade airflow apache-airflow/airflow --namespace airflow -f helm/k8s-volume-values.yaml 
+
+
+
+kubectl port-forward svc/airflow-webserver 8282:8080 --namespace airflow
