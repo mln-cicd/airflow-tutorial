@@ -1,6 +1,8 @@
 from airflow import DAG
 from airflow.providers.cncf.kubernetes.operators.kubernetes_pod import KubernetesPodOperator
 from datetime import datetime, timedelta
+from minio import Minio
+import os
 
 default_args = {
     'owner': 'airflow',
@@ -19,10 +21,33 @@ dag = DAG(
     schedule_interval=None,
 )
 
-write_to_minio = KubernetesPodOperator(
+def write_to_minio():
+    # Retrieve credentials from environment variables
+    minio_endpoint = os.getenv("MINIO_ENDPOINT")
+    minio_access_key = os.getenv("MINIO_ACCESS_KEY")
+    minio_secret_key = os.getenv("MINIO_SECRET_KEY")
+
+    client = Minio(
+        minio_endpoint,
+        access_key=minio_access_key,
+        secret_key=minio_secret_key,
+        secure=False
+    )
+
+    # Create bucket if it does not exist
+    if not client.bucket_exists("bucket1"):
+        client.make_bucket("bucket1")
+
+    # Upload a file
+    client.put_object(
+        "my-bucket", "dummy.txt", data=b"Hello, world!", length=13,
+    )
+
+write_to_minio_task = KubernetesPodOperator(
     namespace='airflow',
     image='matthieujln/basic-python-executor:latest',
-    cmds=["python", "/opt/airflow/dags/repo/scripts/minio_writer.py"],
+    cmds=["python", "-c"],
+    arguments=["from minio import Minio; import os;" + write_to_minio.__code__.co_code],
     name="write-to-minio",
     task_id="write_to_minio_task",
     is_delete_operator_pod=True,
