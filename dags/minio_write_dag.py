@@ -8,8 +8,8 @@ default_args = {
     'catchup': False,
     'email_on_failure': False,
     'email_on_retry': False,
-    'retries': 1,
-    'retry_delay': timedelta(minutes=5),
+    'retries': 5,
+    'retry_delay': timedelta(minutes=0.1),
 }
 
 dag = DAG(
@@ -35,6 +35,5 @@ write_to_minio = KubernetesPodOperator(
     get_logs=True,
     dag=dag,
 )
-
 
 write_to_minio
