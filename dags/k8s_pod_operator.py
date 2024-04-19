@@ -13,3 +13,5 @@ kubernetes_pod_operator = KubernetesPodOperator(
 )
 
 kubernetes_pod_operator.dry_run()
+
+kubernetes_pod_operator

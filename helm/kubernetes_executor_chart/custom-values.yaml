@@ -227,7 +227,7 @@ dags:
     # https example: https://github.com/apache/airflow.git
     repo: https://github.com/mln-cicd/airflow-tutorial.git
     branch: main  # Default branch to sync from
-    rev: HEAD  # Specific revision, tag, or head to sync
+    # rev: HEAD  # Specific revision, tag, or head to sync
     depth: 1  # Makes the clone a shallow clone which should save time and space when cloning large repositories
     # the number of consecutive failures allowed before aborting
     maxFailures: 3

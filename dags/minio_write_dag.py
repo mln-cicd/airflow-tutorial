@@ -35,3 +35,6 @@ write_to_minio = KubernetesPodOperator(
     get_logs=True,
     dag=dag,
 )
+
+
+write_to_minio

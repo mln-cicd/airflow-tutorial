@@ -23,7 +23,7 @@ git clone git@github.com-cicd:mln-cicd/airflow-tutorial.git
 Installation MinIO
 ```bash
 
-helm repo add minio https://charts.min.io/
+helm repo add minio https://charts.min.io/gi
 helm repo update
 helm install my-minio minio/minio --set accessKey=mln,secretKey=8888,resources.requests.memory=2Gi
 
