@@ -19,7 +19,7 @@ dag = DAG('kubernetes_pod_operator_dag',
           catchup=False)
 
 kubernetes_pod_operator = KubernetesPodOperator(
-    namespace='default',
+    namespace='airflow',
     image='python:3.8-slim',
     cmds=['python', '-c'],
     arguments=['print("Hello from the KubernetesPodOperator")'],
