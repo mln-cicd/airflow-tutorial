@@ -28,3 +28,5 @@ helm repo update
 helm install my-minio minio/minio --set accessKey=mln,secretKey=8888,resources.requests.memory=2Gi
 
 ```
+
+s
