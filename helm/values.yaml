@@ -1,0 +1,85 @@
+config:
+  webserver:
+    expose_config: 'True'  # by default this is 'False'
+
+images:
+  airflow:
+    repository: docker.io/matthieujln/airflow-custom
+    tag: 1.0.0
+    digest: ~
+    pullPolicy: IfNotPresent
+
+airflow:
+  config:
+    AIRFLOW__CORE__EXECUTOR: "CeleryExecutor"
+    AIRFLOW__CORE__SQL_ALCHEMY_CONN: "postgresql+psycopg2://postgres:airflow@airflow-postgresql:5432/airflow"
+    AIRFLOW__CORE__FERNET_KEY: "<your_fernet_key>"
+    AIRFLOW__CORE__REMOTE_LOGGING: "True"
+    AIRFLOW__CORE__REMOTE_BASE_LOG_FOLDER: "s3://my-bucket/logs"
+    AIRFLOW__CORE__REMOTE_LOG_CONN_ID: "my_minio"
+    AIRFLOW__S3__ENDPOINT_URL: "http://myminio-hl.minio-tenant1.svc.cluster.local:9000"
+    AIRFLOW__S3__ACCESS_KEY_ID: $(MINIO_ACCESS_KEY)
+    AIRFLOW__S3__SECRET_ACCESS_KEY: $(MINIO_SECRET_KEY)
+
+  extraEnv:
+    - name: MINIO_ACCESS_KEY
+      valueFrom:
+        secretKeyRef:
+          name: minio-secrets
+          key: access_key
+    - name: MINIO_SECRET_KEY
+      valueFrom:
+        secretKeyRef:
+          name: minio-secrets
+          key: secret_key
+    - name: AIRFLOW_CONN_MY_MINIO
+      valueFrom:
+        secretKeyRef:
+          name: minio-secrets
+          key: s3_connection_uri
+
+  connections:
+    - id: my_minio
+      type: s3
+      description: "S3 connection to MinIO"
+      extra: |-
+        {
+          "host": "http://minio.minio-tenant1.svc.cluster.local:9000",
+          "aws_access_key_id": "$(MINIO_ACCESS_KEY)",
+          "aws_secret_access_key": "$(MINIO_SECRET_KEY)"
+        }
+
+kubernetesPodOperator:
+  envFromSecret: minio-secrets
+
+# Git sync
+dags:
+  # Where dags volume will be mounted. Works for both persistence and gitSync.
+  # If not specified, dags mount path will be set to $AIRFLOW_HOME/dags
+  
+  mountPath: /opt/airflow/dags
+  persistence:
+    enabled: false  # Disable persistence if using gitSync
+  gitSync:
+    enabled: true
+
+    # git repo clone url
+    # https example: https://github.com/apache/airflow.git
+    repo: https://github.com/mln-cicd/airflow-tutorial.git
+    branch: main  # Default branch to sync from
+    rev: HEAD  # Specific revision, tag, or head to sync
+    depth: 1  # Makes the clone a shallow clone which should save time and space when cloning large repositories
+    # the number of consecutive failures allowed before aborting
+    maxFailures: 3
+
+    # Subpath within the repo where dags are located, should be "" if dags are at repo root
+    subPath: "dags"
+
+    # Interval between git sync attempts in seconds
+    # Go-style duration string (e.g., "100ms" or "0.1s" = 100ms)
+    period: 60s  # How often git-sync should pull from the repository
+
+    # The name of the container running git-sync
+    containerName: git-sync
+
+    credentialsSecret: git-credentials
